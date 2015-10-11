@@ -38,20 +38,6 @@ app.control = (function() {
 
 	/*-------------------- PARSE --------------------*/
 
-    var fetchAll = function(fetch){
-		fetch.find({
-			success: function(obj) {
-				console.log(obj);
-				obj.forEach(function(item){
-					console.log(item.get('word'));
-				});
-			},
-			error: function(err) {
-				console.log(err);
-			}
-		});
-    };
-
 	var saveRecord = function(obj, callback){
 		console.log('Called saveRecord');
 		var recordsInstance = new RecordsClass();

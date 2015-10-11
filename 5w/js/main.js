@@ -5,7 +5,19 @@ app.control = (function() {
 
 	// GLOBALS
 	var width, height, currDiv, isMoving;
+	// PARSE
+	var nameOfTheClass,		// String
+		recordsQuery;		// Parse Query Object
 
+	var initParse = function(){
+		console.log('Called initParse.');
+
+	    Parse.initialize("R0mfLbOFVBYkmG8Amg6xjAKhbJ3HT06MaaDsokQW",
+	    				 "JTnq2Qe22Hl129G3o9Rkrt4FN6MO1OyfTsz8Vxfl");		
+		
+		nameOfTheClass	= 'Records';
+		recordsQuery	= new Parse.Query(nameOfTheClass);
+	};
 	/*------------------ FUNCTIONS ------------------*/	
 
 	// Show loading
@@ -19,15 +31,21 @@ app.control = (function() {
 
 	// Loading the list of domais/countries and services from the server
 	var loadData = function(callback){
-		console.log('Called loadData.')
-        $.post('/start', {}, function(response) {
-            // console.log(response);
-            if(response.error){
-            	throw response.error	
-            }else{
-            	callback(response);
-            }
-        });		
+		console.log('Called loadData.')	
+		recordsQuery.find({
+			success: function(response) {
+				console.log(response);
+				var data = [];
+				response.forEach(function(item){
+					console.log(item.get('word'));
+					data.push(item.attributes);
+				});
+				callback(data);
+			},
+			error: function(err) {
+				console.log(err);
+			}
+		});        
 	}
 
 	var processData = function(data, callback){
@@ -269,11 +287,11 @@ app.control = (function() {
 	function convertDateToString(date){
 		var newDate = new Date(date);
 		newDate.setHours(0, 0, 0, 0);
-		var yesterday = new Date();
-		yesterday.setDate(yesterday.getDate() - 1);
-		yesterday.setHours(0, 0, 0, 0);
-		if(newDate >= yesterday){
-			return 'Yesterday'
+		// var yesterday = new Date();
+		// yesterday.setDate(yesterday.getDate() - 1);
+		// yesterday.setHours(0, 0, 0, 0);
+		if(date >= newDate){
+			return 'Today'
 		}else{
 			var monthNames = ["January", "February", "March", "April", "May", "June",
 			  "July", "August", "September", "October", "November", "December"
@@ -296,6 +314,7 @@ app.control = (function() {
 	var init = function() {
 		callLoader();
 		initGlobalVars();
+		initParse();
 		loadData(function(data){
 			processData(data, function(processedData){
 				printResults(processedData, function(finalData){
