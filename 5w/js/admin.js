@@ -4,18 +4,13 @@ var app = app || {};
 app.control = (function() {
 
 	// Declaring our app variables
-	var nameOfTheClass,	// String
-		RecordsClass,	// Parse Class Object
-		records,		// Instance of RecordsClass
-		recordsQuery;	// Parse Fetch Object
+	var nameOfTheClass,		// String
+		RecordsClass;		// Parse Class Object
 
-	var words = ['who+', 'what+', 'when+', 'where+', 'why+', 'how+'];
-	// All results from this day
-	var dailyResults = [];
+	var words;
 	var wordIndex = 0;
-	var isRunning = false;
 
-	var initParse = function(callback){
+	var initParse = function(){
 		console.log('Called initParse.');
 
 	    Parse.initialize("R0mfLbOFVBYkmG8Amg6xjAKhbJ3HT06MaaDsokQW",
@@ -23,14 +18,10 @@ app.control = (function() {
 		
 		nameOfTheClass = 'Records';
 		RecordsClass = Parse.Object.extend(nameOfTheClass);
-		records = new RecordsClass();
-		recordsQuery = new Parse.Query(nameOfTheClass);
-
-		callback();
 	};
 
 	var initVars = function(){
-		words = ['who+', 'what+', 'when+', 'where+', 'why+', 'how+'];
+		words = ['who ', 'what ', 'when ', 'where ', 'why ', 'how '];
 		dailyResults = [];
 		wordIndex = 0;
 		isRunning = false;
@@ -61,12 +52,14 @@ app.control = (function() {
 		});
     };
 
-	var saveRecord = function(instance, obj){
+	var saveRecord = function(obj, callback){
 		console.log('Called saveRecord');
-		instance.save(obj, {
+		var recordsInstance = new RecordsClass();
+		recordsInstance.save(obj, {
 			success: function(res){
 				console.log('Saved object.');
 				console.log(res);
+				callback();
 			},
 			error: function(res, err){
 				console.log(err);
@@ -74,73 +67,101 @@ app.control = (function() {
 		});
 	};	
 
+
 	/*-------------------- AUTOCOMPLETE --------------------*/	
 
+	// Executes a call to autocomplete, one word at a time
 	function callAutocomplete(query){
+		
 		console.log('Called callAutocomplete.')
 
-		// var url = {
-		// 	uri: concatenateUrl(query),
-		// 	encoding: null
-		// };
-		
-		var url = concatenateUrl(query);
+		$('#admin').append('<h3>Calling autocomplete for '+query+'<h3>');
 
-		$.getJSON(url, function(data){
-			console.log(data);
+		$.ajax({
+			url: 'https://www.google.com/complete/search?',
+			dataType: 'jsonp',
+			data: {
+				q: query,
+				nolabels: 't',
+				client: 'firefox',
+				hl: 'en'
+			},
+			success: function(data) {
+				console.log(data);
+				var results = data[1];
+				// console.log(results);
+				var list = $('<ul></ul>').appendTo('#admin');
+				for(var i = 0; i < results.length; i++){
+					// console.log(results[i]);
+					// console.log(replacePlusSign(results[i]));
+					results[i] = replacePlusSign(results[i]);
+					$(list).append('<li>'+results[i]+'</li>');
+				}
+
+				// NEXT
+				createRecord(query, results, function(obj){
+					saveRecord(obj, nextIteration);
+				});
+			},
+			error: function(err){
+				console.log(err)
+			}
 		});
-
-		// .fail(function() {
-		//     console.log( "error" );
-  // 		});
-
-		// request(url, function (error, response, body) {
-		// // 	// console.log(error);
-		// // 	// console.log(response);
-		// 	// console.log(body);
-
-		// 	if (!error && response.statusCode == 200) {
-
-		// 		var data = JSON.parse(iconv.decode(body, 'ISO-8859-1'));
-		// 		// console.log(data);
-		// 		var suggestions = data[1];
-		// 		// console.log(suggestions);
-		// 		// console.log(suggestions.length);
-
-		// 		// Create a new record and store
-		// 		createRecord(query, suggestions, function(err, obj){
-		// 			if(!err){
-		// 				console.log(obj);	
-		// 				dailyResults.push(obj);						
-		// 			}
-		// 			// Call next iteration even if err == true
-		// 			// Might be the case that no suggestions were retrieved,
-		// 			// so just jump to the next letter
-		// 			// nextIteration();				
-		// 		});
-		// 	}else{
-		// 		console.log(error);
-		// 	}
-		// });
 	};
 
-	// Creates url for reqquest, concatenating the parameters
-	var concatenateUrl = function(query){
-		console.log('Called concatenateUrl');
-		// console.log(service.ds);	
-		var requestUrl = 'http://cors.io/?u=' +
-						 'https://www.google.com/complete/search?' +
-						 '&client=firefox'+
-						 '&q=' + query;
+	var replacePlusSign = function(string){
+		while(string.indexOf('+') > -1){
+			string = string.replace('+', ' ');
+		};
+		return string;
+	};
 
-		// console.log(requestUrl);
-		console.log('Returning ' + requestUrl);
-		return requestUrl;
-	};	
+	// Parsing the results into a the database format 
+	function createRecord(query, suggestions, callback){
+		console.log('Called createRecord');
+		// console.log('Received:');
+		// console.log(query);
+		// console.log(suggestions);
+		var obj;
+		if(suggestions.length > 0){	
+			var now = new Date();
+			now.setHours(0);
+			now.setMinutes(0);
+			now.setSeconds(0);
+			now.setMilliseconds(0);
+
+			obj = {
+				date: now,
+				word: query.substring(0, query.length - 1),
+				results: suggestions
+			};
+
+			console.log(obj);
+			
+			callback(obj);
+		}
+	}
+
+	var nextIteration = function(){
+
+		// New word...
+		wordIndex ++;
+		if(wordIndex < words.length){
+			// console.log(words[wordIndex]);
+			setTimeout(function(){	// Delay to prevent Google's shut down		
+				callAutocomplete(words[wordIndex]);
+			}, 15000);
+		
+		}else{
+			$('#admin').append('<h2>Finished saving today\'s results</h2>');
+		}	
+	}	
 
 	var init = function() {
 		console.log('Called init.');
-		initParse(attachEvents);
+		initParse();
+		initVars();
+		attachEvents();
 	};
 
 	return{
