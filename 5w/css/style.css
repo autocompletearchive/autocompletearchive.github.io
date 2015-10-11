@@ -234,16 +234,16 @@ div.nav-container#nav-container-up{
 	transform: translateY(-50%);	
 }
 
-#loader-container .loader {
-	width: 20px;
-	height: 20px;
-	border: 3px solid black;
-	display: inline-block;
-    -webkit-animation: myfirst 1s; /* Chrome, Safari, Opera */
-    animation: myfirst 1s;
-    -webkit-animation-iteration-count: infinite; /* Chrome, Safari, Opera */
-    animation-iteration-count: infinite;    
-}
+	.loader {
+		width: 20px;
+		height: 20px;
+		border: 3px solid black;
+		display: inline-block;
+	    -webkit-animation: myfirst 1s; /* Chrome, Safari, Opera */
+	    animation: myfirst 1s;
+	    -webkit-animation-iteration-count: infinite; /* Chrome, Safari, Opera */
+	    animation-iteration-count: infinite;    
+	}
 
 
 /* Chrome, Safari, Opera */
@@ -303,17 +303,32 @@ div.nav-container#nav-container-up{
 /*------------- ADMIN -------------*/
 div#admin{
 	padding: 20px;
+	width: 640px;
+	margin: auto;
+	position: relative;
 }
 
-div#admin div#record-bt{
-	width: 80px;
-	margin-bottom: 20px;
-	background-color: rgba(255, 0, 50, 0.65);
-	color: white;
-	text-align: center;
-	font-weight: bold;
-	font-size: 13px;
-	padding: 5px;
-	z-index: 1000;
-	cursor: pointer;
+	div#admin ul{
+		margin: 20px 0 40px 0;
+		padding: 0;	
+		list-style-position: inside;
+	}		
+
+	div#admin div#record-bt{
+		width: 80px;
+		margin-bottom: 20px;
+		background-color: rgba(255, 0, 50, 0.65);
+		color: white;
+		text-align: center;
+		font-weight: bold;
+		font-size: 13px;
+		padding: 5px;
+		z-index: 1000;
+		cursor: pointer;
+	}
+
+div#admin #loader-container{
+	text-align: left;
+	width: 100%;
+	position: static;
 }

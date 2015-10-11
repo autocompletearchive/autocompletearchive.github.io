@@ -75,7 +75,7 @@ app.control = (function() {
 		
 		console.log('Called callAutocomplete.')
 
-		$('#admin').append('<h3>Calling autocomplete for '+query+'<h3>');
+		var title = $('<h3>Calling autocomplete for '+query+'<h3>').appendTo('#admin');
 
 		$.ajax({
 			url: 'https://www.google.com/complete/search?',
@@ -90,7 +90,10 @@ app.control = (function() {
 				console.log(data);
 				var results = data[1];
 				// console.log(results);
+				
+				$('#loader-container').remove();
 				var list = $('<ul></ul>').appendTo('#admin');
+
 				for(var i = 0; i < results.length; i++){
 					// console.log(results[i]);
 					// console.log(replacePlusSign(results[i]));
@@ -148,14 +151,23 @@ app.control = (function() {
 		wordIndex ++;
 		if(wordIndex < words.length){
 			// console.log(words[wordIndex]);
+			callLoader();
 			setTimeout(function(){	// Delay to prevent Google's shut down		
 				callAutocomplete(words[wordIndex]);
-			}, 15000);
+			}, 2000);
 		
 		}else{
 			$('#admin').append('<h2>Finished saving today\'s results</h2>');
 		}	
 	}	
+
+	function callLoader(){
+		$('#results-container').empty();
+		var AdminLoaderContainer = $('<div id="loader-container"></div>')
+		var loader = $('<span class="loader"></span>');
+		$(AdminLoaderContainer).append(loader);
+		$('#admin').append(AdminLoaderContainer)
+	}
 
 	var init = function() {
 		console.log('Called init.');
