@@ -86,13 +86,8 @@ app.control = (function() {
 		
 		var url = concatenateUrl(query);
 
-		$.ajax({
-			type: 'GET',
-		  	url: url,
-		  // data: data,
-		  	success: function(data){
-		  		console.log(data);
-		  	}
+		$.getJSON(url, function(data){
+			console.log(data);
 		});
 
 		// .fail(function() {
@@ -133,8 +128,8 @@ app.control = (function() {
 	var concatenateUrl = function(query){
 		console.log('Called concatenateUrl');
 		// console.log(service.ds);	
-		var requestUrl = 
-						'https://www.google.com/complete/search?' +
+		var requestUrl = 'http://cors.io/?u=' +
+						 'https://www.google.com/complete/search?' +
 						 '&client=firefox'+
 						 '&q=' + query;
 
