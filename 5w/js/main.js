@@ -274,32 +274,20 @@ app.control = (function() {
 
 	/*-------------------- AUXILIAR FUNCTIONS --------------------*/
 
-	// Formats UTC date to MM/DD/YYYY
-	function formatDateMMDDYYY(date){
-		var newDate = new Date(date);
-		var monthString = newDate.getMonth() + 1;
-		if (monthString < 10) monthString = '0' + monthString;
-		var dateString = newDate.getDate();
-		var yearString = newDate.getFullYear();
-		return monthString + '/' + dateString + '/' + yearString;
-	}
-
 	function convertDateToString(date){
-		var newDate = new Date(date);
-		newDate.setHours(0, 0, 0, 0);
-		// var yesterday = new Date();
-		// yesterday.setDate(yesterday.getDate() - 1);
-		// yesterday.setHours(0, 0, 0, 0);
-		if(date >= newDate){
+		// console.log(date instanceof Date);
+		var today = new Date();
+		today.setHours(0, 0, 0, 0);
+		if(date >= today){
 			return 'Today'
 		}else{
 			var monthNames = ["January", "February", "March", "April", "May", "June",
 			  "July", "August", "September", "October", "November", "December"
 			];
 
-			var monthString = monthNames[newDate.getMonth()];
-			var dateString = newDate.getDate();
-			var yearString = newDate.getFullYear();
+			var monthString = monthNames[date.getMonth()];
+			var dateString = date.getDate();
+			var yearString = date.getFullYear();
 			return monthString + ' ' + dateString + ', ' + yearString;		
 		}
 	}
